@@ -4,7 +4,7 @@ import { Router } from 'itty-router'
 // Create a new router
 const router = Router()
 
-const DEBUG = process.env.DEVELOPMENT;
+const DEBUG = process.env.ENVIRONMENT === 'dev';
 
 // a generic error handler
 const errorHandler = async (e, event) => {
@@ -65,7 +65,7 @@ router.post("/blog", async request => {
   const json = await readRequestBody(request);
   const body = JSON.parse(json); 
 
-  await MY_KV.put(`blog:post:${body.slug}`, json);
+  await DATABASE.put(`blog:post:${body.slug}`, json);
 
   return new Response(json, {
     headers: {
@@ -75,11 +75,9 @@ router.post("/blog", async request => {
 })
 
 router.get("/blog/all", async () => {
-  const blogPostList = await MY_KV.list({ prefix: 'blog:post' });
-  const blogPosts = (await Promise.all(blogPostList.keys.map(o => MY_KV.get(o.name, { type: 'json' }))))
+  const blogPostList = await DATABASE.list({ prefix: 'blog:post' });
+  const blogPosts = (await Promise.all(blogPostList.keys.map(o => DATABASE.get(o.name, { type: 'json' }))))
   const modifiedBlogPosts = blogPosts.map(o => ({ ...o, new_field: 'hello :)' }))
-
-  console.log(modifiedBlogPosts)
 
   return new Response(JSON.stringify(modifiedBlogPosts), {
     headers: {
@@ -89,8 +87,8 @@ router.get("/blog/all", async () => {
 })
 
 router.get("/blog/:slug", async ({ params }) => {
-  const blogPost = await MY_KV.get(`blog:post:${params.slug}`, { type: 'json' })
-  const modifiedBlogPost = { ...blogPost, new_field: 'you fetched me :D' };
+  const blogPost = await DATABASE.get(`blog:post:${params.slug}`, { type: 'json' })
+  const modifiedBlogPost = { ...blogPost, new_field: 'something else' };
 
   return new Response(JSON.stringify(modifiedBlogPost), {
     headers: {
@@ -127,7 +125,7 @@ router.get("*", async (_, event) => {
     return response
 
   } catch (e) {
-    errorHandler(e, event);
+    return errorHandler(e, event);
   }
 })
 
@@ -137,7 +135,7 @@ above, therefore it's useful as a 404 (and avoids us hitting worker exceptions, 
 Visit any page that doesn't exist (e.g. /foobar) to see it in action.
 */
 router.all("*", (_, event) => {
-  errorHandler(new Error('Missing route'), event);
+  return errorHandler(new Error('Missing route'), event);
 })
 
 /*

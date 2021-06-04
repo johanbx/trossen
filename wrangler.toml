@@ -2,18 +2,18 @@ account_id = "210f8164cfcc2d406b36bad41c5d8e10"
 name = "trossen"
 type = "webpack"
 workers_dev = true
-vars = { DEVELOPMENT = true }
+vars = { ENVIRONMENT = "dev" }
 site = { bucket = "./public" }
 kv_namespaces = [
-  { binding = "MY_KV", id = "557eac331afe43f59cfbd8d606401996", preview_id = "9a84a6d3d4554340b4d9a74e740d9bd0" }
+  { binding = "DATABASE", id = "8a328597485d447996335454f30013c6", preview_id = "bc950d7746584c2fabd6fc394083465e" }
 ]
 
 [env.staging]
-vars = { STAGING = true }
+vars = { ENVIRONMENT = "staging" }
 route = "dev.trossen.nu/*"
 
 [env.production]
-vars = { PRODUCTION = true }
+vars = { ENVIRONMENT = "production" }
 # The ID of the domain to deploying to
 zone_id = "27d7e03538e0fbe4b46009c314f18d9a"
 
@@ -21,5 +21,5 @@ zone_id = "27d7e03538e0fbe4b46009c314f18d9a"
 route = "trossen.nu/*"
 
 kv_namespaces = [
-  { binding = "MY_KV", id = "b4f39e8c4f9945e7b75d954ca0f70a24" }
+  { binding = "DATABASE", id = "6e34c60e251d426eb27bf08b2c3484f4" }
 ]
